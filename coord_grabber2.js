@@ -130,6 +130,7 @@
         e.preventDefault();
         if (isNaN(getVillageIDByCoords(x, y))) return;
         const key = `${x}|${y}`;
+        const vid = getVillageIDByCoords(x,y)
         if (config.groups[config.selectedGroup].villages.some((village) => village.key === key
         )) {
             config.groups[config.selectedGroup].villages = config.groups[config.selectedGroup].villages.filter((village) => village.key !== key
@@ -142,7 +143,8 @@
             {
                 x: x,
                 y: y,
-                key: key
+                key: key,
+                vid: vid
             },
         ];
         addBorderToVillage(x, y, config.groups[config.selectedGroup].color);
@@ -202,7 +204,7 @@
         const groups = [];
         for (let name in config.groups) groups.push(`<div style="margin-bottom: 30px;">
       <h3>${name}</h3>
-      <textarea cols=30 rows=8 readonly>${config.groups[name].villages.map((village) => village.key
+      <textarea cols=30 rows=8 readonly>${config.groups[name].villages.map((village) => village.vid
         ).join(' ').trim()}</textarea>
     </div>`);
         const html = `
