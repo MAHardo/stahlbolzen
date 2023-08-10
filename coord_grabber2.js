@@ -130,6 +130,7 @@
         e.preventDefault();
         if (isNaN(getVillageIDByCoords(x, y))) return;
         const key = `${x}|${y}`;
+        const vid = getVillageIDByCoords(x, y)
         if (config.groups[config.selectedGroup].villages.some((village) => village.key === key
         )) {
             config.groups[config.selectedGroup].villages = config.groups[config.selectedGroup].villages.filter((village) => village.key !== key
@@ -142,7 +143,8 @@
             {
                 x: x,
                 y: y,
-                key: key
+                key: key,
+                vid: vid
             },
         ];
         addBorderToVillage(x, y, config.groups[config.selectedGroup].color);
