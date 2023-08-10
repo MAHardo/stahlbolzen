@@ -1,5 +1,3 @@
-ScriptAPI.register('Multicollor Coordgrab', true, 'Onbekend', 'nl.tribalwars@coma.innogames.de');
-
 (function () {
     function $6a49e4c969cec444$export$2e2bcd8739ae039(obj, key, value) {
         if (key in obj) Object.defineProperty(obj, key, {
