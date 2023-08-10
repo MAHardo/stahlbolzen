@@ -202,7 +202,7 @@
         const groups = [];
         for (let name in config.groups) groups.push(`<div style="margin-bottom: 30px;">
       <h3>${name}</h3>
-      <textarea cols=30 rows=8 readonly>${config.groups[name].villages.map((village) => village.key
+      <textarea cols=30 rows=8 readonly>${config.groups[name].villages.map((village) => village.id
         ).join(' ').trim()}</textarea>
     </div>`);
         const html = `
