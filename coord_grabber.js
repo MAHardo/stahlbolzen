@@ -124,7 +124,7 @@ ScriptAPI.register('Multicollor Coordgrab', true, 'Onbekend', 'nl.tribalwars@com
     const deleteVillageFromOtherGroups = (key) => {
         for (let name in config.groups) {
             if (name === config.selectedGroup) return;
-            config.groups[name].villages = config.groups[name].villages.filter((village) => village.key !== key
+            config.groups[name].villages = config.groups[name].villages.filter((village) => village.id !== key
             );
         }
     };
@@ -132,9 +132,9 @@ ScriptAPI.register('Multicollor Coordgrab', true, 'Onbekend', 'nl.tribalwars@com
         e.preventDefault();
         if (isNaN(getVillageIDByCoords(x, y))) return;
         const key = `${x}|${y}`;
-        if (config.groups[config.selectedGroup].villages.some((village) => village.key === key
+        if (config.groups[config.selectedGroup].villages.some((village) => village.id === key
         )) {
-            config.groups[config.selectedGroup].villages = config.groups[config.selectedGroup].villages.filter((village) => village.key !== key
+            config.groups[config.selectedGroup].villages = config.groups[config.selectedGroup].villages.filter((village) => village.id !== key
             );
             addBorderToVillage(x, y, 'transparent');
             return;
