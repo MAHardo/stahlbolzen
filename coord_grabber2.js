@@ -1,270 +1,250 @@
-(function () {
-    function $6a49e4c969cec444$export$2e2bcd8739ae039(obj, key, value) {
-        if (key in obj) Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-        });
-        else obj[key] = value;
-        return obj;
-    }
+/*
+ * Script Name: Set/Get Village Notes
+ * Version: v1.3.0
+ * Last Updated: 2023-04-19
+ * Author: RedAlert
+ * Author URL: https://twscripts.dev/
+ * Author Contact: redalert_tw (Discord)
+ * Approved: t14272680
+ * Approved Date: 2020-10-08
+ * Mod: JawJaw
+ */
 
+/*--------------------------------------------------------------------------------------
+ * This script can NOT be cloned and modified without permission from the script author.
+ --------------------------------------------------------------------------------------*/
 
-    function $f1e9793517c51c58$export$2e2bcd8739ae039(target) {
-        for (var i = 1; i < arguments.length; i++) {
-            var source = arguments[i] != null ? arguments[i] : {};
-            var ownKeys = Object.keys(source);
-            if (typeof Object.getOwnPropertySymbols === 'function') ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-            }));
-            ownKeys.forEach(function (key) {
-                $6a49e4c969cec444$export$2e2bcd8739ae039(target, key, source[key]);
-            });
-        }
-        return target;
-    }
+// User Input
+if (typeof DEBUG !== 'boolean') DEBUG = false;
 
-    const $79a03938b25da972$var$translations = {
-        pl_PL: {
-            startCoordsPicker: 'Uruchom zbieracza koordynat',
-            stopCoordsPicker: 'Zatrzymaj zbieracza koordynat',
-            exportedVillages: 'Wyeksportowane wioski',
-            cannotDeleteSelectedGroup: 'Nie moÅ¼na usunÄ…Ä‡ wybranej grupy!',
-            select: 'Wybierz',
-            delete: 'UsuÅ„',
-            add: 'Dodaj',
-            save: 'Zapisz',
-            groupName: 'Nazwa grupy',
-            export: 'Eksport'
-        },
+// Script Config
+var scriptConfig = {
+    scriptData: {
+        prefix: 'setGetVillageNotes',
+        name: 'Set/Get Village Notes',
+        version: 'v1.3.0',
+        author: 'RedAlert',
+        authorUrl: 'https://twscripts.dev/',
+        helpLink:
+            'https://forum.tribalwars.net/index.php?threads/set-get-village-note.286051/',
+    },
+    translations: {
         en_DK: {
-            startCoordsPicker: 'Start coords picker',
-            stopCoordsPicker: 'Stop coords picker',
-            exportedVillages: 'Exported villages',
-            cannotDeleteSelectedGroup: 'Cannot delete selected group!',
-            select: 'Select',
-            delete: 'Delete',
-            add: 'Add',
-            save: 'Save',
-            groupName: 'Group name',
-            export: 'Export'
+            'Set/Get Village Notes': 'Set/Get Village Notes',
+            Help: 'Help',
+            'Note added!': 'Note added!',
+            'Note can not be added for this report!':
+                'Note can not be added for this report!',
+            'Report Link': 'Report Link',
+            'No notes found for this village!':
+                'No notes found for this village!',
+            'This script requires Premium Account to be active!':
+                'This script requires Premium Account to be active!',
+            'Finished!': 'Finished!',
+            'Off. Troops:': 'Off. Troops:',
+            'Def. Troops:': 'Def. Troops:',
         },
-        de_DE: {
-            startCoordsPicker: 'Starte Koordinaten-Selektor',
-            stopCoordsPicker: 'Stoppe Koordinaten-Selektor',
-            exportedVillages: 'Exportierte DÃ¶rfer',
-            cannotDeleteSelectedGroup: 'Gruppe kann nicht gelÃ¶scht werden!',
-            select: 'Selektieren',
-            delete: 'LÃ¶schen',
-            add: 'HinzufÃ¼gen',
-            save: 'Speichern',
-            groupName: 'Gruppen-Name',
-            export: 'Exportieren'
-        }
-    };
-    var $79a03938b25da972$export$2e2bcd8739ae039 = () => $79a03938b25da972$var$translations[window.game_data.locale] || $79a03938b25da972$var$translations.en_DK
-    ;
+    },
+    allowedMarkets: [],
+    allowedScreens: ['report', 'info_command'],
+    allowedModes: [],
+    isDebug: DEBUG,
+    enableCountApi: true,
+};
 
+$.getScript(
+    `https://twscripts.dev/scripts/twSDK.js?url=${document.currentScript.src}`,
+    async function () {
+        // Initialize Library
+        await twSDK.init(scriptConfig);
+        const isAllowedScreen = twSDK.checkValidLocation('screen');
 
-    const $362bcac9fa8968ec$export$f92dfeb71e9bb569 = (key, d = {}) => {
-        const json = localStorage.getItem(key);
-        let obj = d;
-        if (json) obj = JSON.parse(json);
-        return obj;
-    };
-    const $362bcac9fa8968ec$export$8a8216c44337cd5 = (key, payload) => {
-        localStorage.setItem(key, JSON.stringify(payload));
-    };
+        (function () {
+            const gameScreen = twSDK.getParameterByName('screen');
+            const gameView = twSDK.getParameterByName('view');
+            const commandId = twSDK.getParameterByName('id');
 
-
-    const LOCAL_STORAGE_KEY = 'kichiyaki_map_coords_picker';
-    const container = document.querySelector('#content_value > h2');
-    let button;
-    let formsContainer;
-    let actionsContainer;
-    let config = $362bcac9fa8968ec$export$f92dfeb71e9bb569(LOCAL_STORAGE_KEY, {
-        started: false,
-        groups: {
-            All: {
-                villages: [],
-                color: '#ffffff'
+            if (game_data.features.Premium.active) {
+                if (isAllowedScreen) {
+                    if (gameScreen === 'report' && gameView !== null) {
+                        setTimeout(function () {
+                            initSetVillageNote();
+                        }, 300);
+                    } else if (
+                        gameScreen === 'info_command' &&
+                        commandId !== null
+                    ) {
+                        initGetVillageNote();
+                    } else {
+                        twSDK.redirectTo('report');
+                    }
+                } else {
+                    twSDK.redirectTo('report');
+                }
+            } else {
+                UI.ErrorMessage(
+                    twSDK.tt(
+                        'This script requires Premium Account to be active!'
+                    )
+                );
             }
-        },
-        selectedGroup: 'All'
-    });
-    let intervalID;
-    const translations = $79a03938b25da972$export$2e2bcd8739ae039();
-    const saveConfig = () => {
-        $362bcac9fa8968ec$export$8a8216c44337cd5(LOCAL_STORAGE_KEY, config);
-    };
-    const getVillageIDByCoords = (x, y) => {
-        const xy = parseInt(`${x}${y}`, 10);
-        const village = TWMap.villages[xy];
-        if (!village) return NaN;
-        return village.id;
-    };
-    const addBorderToVillage = (x, y, color = 'transparent') => {
-        const village = document.querySelector('#map_village_' + getVillageIDByCoords(x, y));
-        if (village) {
-            village.style.boxSizing = 'border-box';
-            village.style.border = color !== 'transparent' ? `5px solid ${color}` : 'none';
-        }
-    };
-    const addBorderToVillagesInGroup = (name, color = '') => {
-        config.groups[name].villages.forEach((village) => {
-            addBorderToVillage(village.x, village.y, color ? color : config.groups[name].color);
-        });
-    };
-    const addBorderToSelectedVillages = (color = '') => {
-        for (let name in config.groups) addBorderToVillagesInGroup(name, color);
-    };
-    const deleteVillageFromOtherGroups = (key) => {
-        for (let name in config.groups) {
-            if (name === config.selectedGroup) return;
-            config.groups[name].villages = config.groups[name].villages.filter((village) => village.key !== key
-            );
-        }
-    };
-    const handleMapClick = (x, y, e) => {
-        e.preventDefault();
-        if (isNaN(getVillageIDByCoords(x, y))) return;
-        const key = `${x}|${y}`;
-        const vid = getVillageIDByCoords(x,y)
-        if (config.groups[config.selectedGroup].villages.some((village) => village.key === key
-        )) {
-            config.groups[config.selectedGroup].villages = config.groups[config.selectedGroup].villages.filter((village) => village.key !== key
-            );
-            addBorderToVillage(x, y, 'transparent');
-            return;
-        }
-        config.groups[config.selectedGroup].villages = [
-            ...config.groups[config.selectedGroup].villages,
-            {
-                x: x,
-                y: y,
-                key: key,
-                vid: vid
-            },
-        ];
-        addBorderToVillage(x, y, config.groups[config.selectedGroup].color);
-        deleteVillageFromOtherGroups(key);
-        saveConfig();
-    };
-    const renderForm = (container, group) => {
-        const selected = group && group.name !== config.selectedGroup;
-        const html = `
-            <input type="color" value="${group ? group.color : ''}" required />
-            <input type="text" required placeholder="${translations.groupName}" value="${group ? group.name : ''}" />
-            <button type="submit">${group ? translations.save : translations.add}</button>
-            ${group ? `<button type="button">${translations.delete}</button>` : ''}
-            ${selected ? `<button class="selectButton" type="button">${translations.select}</button>` : ''}
-    `;
-        const form = document.createElement('form');
-        form.innerHTML = html;
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (group) {
-                if (group.name === config.selectedGroup) config.selectedGroup = e.target[1].value;
-                addBorderToVillagesInGroup(group.name, e.target[0].value);
-                config.groups[e.target[1].value] = $f1e9793517c51c58$export$2e2bcd8739ae039({}, config.groups[group.name], {
-                    color: e.target[0].value
-                });
-                if (group.name !== e.target[1].value) delete config.groups[group.name];
-            } else config.groups[e.target[1].value] = {
-                color: e.target[0].value,
-                villages: []
-            };
-            renderGroups();
-        });
-        if (group) {
-            form.querySelector('button[type="button"]').addEventListener('click', () => {
-                if (config.selectedGroup === group.name) return UI.ErrorMessage(translations.cannotDeleteSelectedGroup);
-                addBorderToVillagesInGroup(group.name, 'transparent');
-                delete config.groups[group.name];
-                form.remove();
-                saveConfig();
-            });
-            const selectButton = form.querySelector('.selectButton');
-            if (selectButton) selectButton.addEventListener('click', (e) => {
-                config.selectedGroup = group.name;
-                renderGroups();
-            });
-        }
-        container.appendChild(form);
-    };
-    const renderGroups = () => {
-        formsContainer.innerHTML = '';
-        for (let name in config.groups) renderForm(formsContainer, $f1e9793517c51c58$export$2e2bcd8739ae039({}, config.groups[name], {
-            name: name
-        }));
-        renderForm(formsContainer);
-    };
-    const handleExportVillages = () => {
-        const groups = [];
-        for (let name in config.groups) groups.push(`<div style="margin-bottom: 30px;">
-      <h3>${name}</h3>
-      <textarea cols=30 rows=8 readonly>${config.groups[name].villages.map((village) => village.vid
-        )}</textarea>
-    </div>`);
-        const html = `
-    ${groups.join('')}
-  `;
-        Dialog.show(translations.exportedVillages, html);
-    };
-    const renderActions = () => {
-        const exportVillages = document.createElement('button');
-        exportVillages.innerHTML = translations.export;
-        exportVillages.addEventListener('click', handleExportVillages);
-        actionsContainer.appendChild(exportVillages);
-    };
-    const handleSpawnSector = (data, sector) => {
-        TWMap.mapHandler.__spawnSector(data, sector);
-        addBorderToSelectedVillages();
-    };
-    const handleStart = () => {
-        TWMap.map.handler.__onClick = TWMap.map.handler.onClick;
-        TWMap.map.handler.onClick = handleMapClick;
-        TWMap.mapHandler.__spawnSector = TWMap.map.handler.spawnSector;
-        TWMap.mapHandler.spawnSector = handleSpawnSector;
-        button.innerHTML = translations.stopCoordsPicker;
-        renderActions();
-        addBorderToSelectedVillages();
-        renderGroups();
-    };
-    const handleStop = () => {
-        if (typeof TWMap.map.handler.__onClick === 'function') TWMap.map.handler.onClick = TWMap.map.handler.__onClick;
-        if (typeof TWMap.map.handler.__spawnSector === 'function') TWMap.mapHandler.spawnSector = TWMap.map.handler.__spawnSector;
-        button.innerHTML = translations.startCoordsPicker;
-        formsContainer.innerHTML = '';
-        actionsContainer.innerHTML = '';
-        addBorderToSelectedVillages('transparent');
-        if (intervalID) clearInterval(intervalID);
-        for (let name in config.groups) config.groups[name].villages = [];
-    };
-    const handleButtonClick = () => {
-        if (config.started) handleStop();
-        else handleStart();
-        config.started = !config.started;
-    };
-    const renderUI = () => {
-        button = document.createElement('button');
-        button.style.marginLeft = '5px';
-        button.innerHTML = config.started ? translations.stopCoordsPicker : translations.startCoordsPicker;
-        button.addEventListener('click', handleButtonClick);
-        container.appendChild(button);
-        formsContainer = document.createElement('div');
-        container.parentElement.insertBefore(formsContainer, container.nextSibling);
-        actionsContainer = document.createElement('div');
-        container.parentElement.insertBefore(actionsContainer, container.nextSibling);
-        if (config.started) handleStart();
-    };
-    (function () {
-        try {
-            renderUI();
-        } catch (error) {
-            console.log('Map Coords Picker', error);
-        }
-    })();
+        })();
 
-})();
+        // Init Set Village Notes
+        function initSetVillageNote() {
+            let noteText = '';
+            let villageId;
+
+            let attackingVillageTroops = [];
+            let attackingVillageTroopsData = [];
+            let attackingTroopTotalFarmSpace = {};
+            let offTroopsFarmSpace = 0;
+            let defTroopsFarmSpace = 0;
+
+            let unitsFarmSpace = {
+                spear: 1,
+                sword: 1,
+                axe: 1,
+                archer: 1,
+                spy: 2,
+                light: 4,
+                marcher: 5,
+                heavy: 6,
+                ram: 5,
+                catapult: 8,
+                knight: 10,
+                snob: 100,
+            };
+
+            const reportTime = jQuery('table#attack_info_def')[0].parentNode
+                .parentNode.parentNode.rows[1].cells[1].textContent;
+            const defenderPlayerName = jQuery('table#attack_info_def')[0]
+                .rows[0].cells[1].textContent;
+
+            const reportId = twSDK.getParameterByName('view');
+
+            if (defenderPlayerName !== '---') {
+                // Prepare note data
+                if (defenderPlayerName == game_data.player.name) {
+                    villageId = jQuery('table#attack_info_att')[0]
+                        .rows[1].cells[1].getElementsByTagName('span')[0]
+                        .getAttribute('data-id');
+
+                    jQuery('#attack_info_att_units tr:eq(1) td.unit-item').each(
+                        function () {
+                            attackingVillageTroops.push(
+                                parseInt(jQuery(this).text().trim())
+                            );
+                        }
+                    );
+                } else {
+                    villageId = jQuery('table#attack_info_def')[0]
+                        .rows[1].cells[1].getElementsByTagName('span')[0]
+                        .getAttribute('data-id');
+                }
+
+                game_data.units.map((unit, index) => {
+                    attackingVillageTroopsData.push({
+                        unitType: unit,
+                        unitAmount: attackingVillageTroops[index],
+                    });
+                });
+
+                attackingVillageTroopsData.forEach((item) => {
+                    const unitFarmAmount =
+                        item.unitAmount * unitsFarmSpace[item.unitType];
+                    if (!isNaN(unitFarmAmount)) {
+                        attackingTroopTotalFarmSpace = {
+                            ...attackingTroopTotalFarmSpace,
+                            [item.unitType]: unitFarmAmount,
+                        };
+                    }
+                });
+
+                const offUnitTypes = ['axe', 'light', 'ram', 'catapult'];
+                const defUnitTypes = ['spear', 'sword', 'heavy'];
+
+                offUnitTypes.forEach((unit) => {
+                    offTroopsFarmSpace += attackingTroopTotalFarmSpace[unit];
+                });
+
+                defUnitTypes.forEach((unit) => {
+                    defTroopsFarmSpace += attackingTroopTotalFarmSpace[unit];
+                });
+
+                noteText += '[b]' + reportTime + '[/b]\n';
+                if (!isNaN(offTroopsFarmSpace)) {
+                    noteText +=
+                        '[b]' +
+                        twSDK.tt('Off. Troops:') +
+                        '[/b] ' +
+                        twSDK.formatAsNumber(offTroopsFarmSpace) +
+                        '\n';
+                }
+                if (!isNaN(defTroopsFarmSpace)) {
+                    noteText +=
+                        '[b]' +
+                        twSDK.tt('Def. Troops:') +
+                        '[/b] ' +
+                        twSDK.formatAsNumber(defTroopsFarmSpace) +
+                        '\n';
+                }
+
+                noteText += '\n' + $('#report_export_code')[0].innerHTML + '\n';
+
+                // Add note on village
+                TribalWars.post(
+                    'info_village',
+                    {
+                        ajaxaction: 'edit_notes',
+                        id: villageId,
+                    },
+                    {
+                        note: noteText,
+                    },
+                    function () {
+                        UI.SuccessMessage(twSDK.tt('Note added!'));
+                        if (jQuery('#report-next').length) {
+                            document.getElementById('report-next').click();
+                        } else {
+                            UI.SuccessMessage(twSDK.tt('Finished!'));
+                            window.location.assign(
+                                game_data.link_base_pure + 'report'
+                            );
+                        }
+                    }
+                );
+            } else {
+                UI.ErrorMessage(
+                    twSDK.tt('Note can not be added for this report!')
+                );
+            }
+        }
+
+        // Init Get Village Notes
+        function initGetVillageNote() {
+            $.get(
+                $('.village_anchor').first().find('a').first().attr('href'),
+                function (html) {
+                    const note = jQuery(html).find(
+                        '#own_village_note .village-note'
+                    );
+                    if (note.length > 0) {
+                        const noteContent = `
+                            <div id="ra-village-notes" class="vis">
+                                <div class="ra-village-notes-body">
+                                    ${note[0].children[1].innerHTML}
+                                </div>
+                            </div>
+                            <style>
+                                #ra-village-notes { position: relative; display: block; width: 100%; height: auto; clear: both; margin: 15px auto; padding: 10px; box-sizing: border-box; }
+                                .ra-village-notes-footer { margin-top: 15px; }
+                            </style>
+                        `;
+                        jQuery('#content_value table:eq(0)').after(noteContent);
+                    }
+                }
+            );
+        }
+    }
+);
