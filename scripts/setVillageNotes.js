@@ -122,6 +122,7 @@ $.getScript(
                 .rows[0].cells[1].textContent;
 
             const reportId = twSDK.getParameterByName('view');
+            const reportLink = `${window.location.origin}/game.php?screen=report&mode=all&view=${reportId}`;
 
             if (defenderPlayerName !== '---') {
                 // Prepare note data
@@ -191,6 +192,9 @@ $.getScript(
                 }
 
                 noteText += '\n' + $('#report_export_code')[0].innerHTML + '\n';
+                noteText += `[url="${reportLink}"]${twSDK.tt(
+                    'Report Link'
+                )}[/url]`;
 
                 // Add note on village
                 TribalWars.post(
