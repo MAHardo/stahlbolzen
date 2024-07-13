@@ -1,19 +1,3 @@
-/*
- * Script Name: Set/Get Village Notes
- * Version: v1.3.0
- * Last Updated: 2023-04-19
- * Author: RedAlert
- * Author URL: https://twscripts.dev/
- * Author Contact: redalert_tw (Discord)
- * Approved: t14272680
- * Approved Date: 2020-10-08
- * Mod: JawJaw
- */
-
-/*--------------------------------------------------------------------------------------
- * This script can NOT be cloned and modified without permission from the script author.
- --------------------------------------------------------------------------------------*/
-
 // User Input
 if (typeof DEBUG !== 'boolean') DEBUG = false;
 
